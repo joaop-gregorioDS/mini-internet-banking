@@ -1,0 +1,46 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Defina MSSQL_SA_PASSWORD no .env}
+    volumes:
+      - dbdata:/var/opt/mssql
+    mem_limit: 2g
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    logging: &logging
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  api:
+    build: ./api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__Default: "Server=db,1433;Database=MiniBanking;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;Connect Retry Count=5"
+      Jwt__Key: ${JWT_KEY:?Defina JWT_KEY no .env (32+ caracteres)}
+      Cors__Origins__0: http://localhost:4201
+    mem_limit: 512m
+    logging: *logging
+    ports:
+      - "5088:8080"
+
+  web:
+    build: ./web
+    depends_on:
+      - api
+    mem_limit: 64m
+    logging: *logging
+    ports:
+      - "4201:80"
+
+volumes:
+  dbdata:

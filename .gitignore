@@ -1,0 +1,19 @@
+# .NET
+api/**/bin/
+api/**/obj/
+api/.vs/
+api/TestResults/
+
+# Node / Angular
+web/node_modules/
+web/dist/
+web/.angular/
+
+# Ambiente
+.env
+
+# Sistema / IDE
+.DS_Store
+Thumbs.db
+.vs/
+.idea/
