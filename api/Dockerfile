@@ -8,9 +8,12 @@ RUN dotnet publish src/MiniBanking.Api/MiniBanking.Api.csproj -c Release -o /app
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
 WORKDIR /app
-RUN adduser -D -u 10001 appuser
+RUN apk add --no-cache icu-libs \
+    && adduser -D -u 10001 appuser
 COPY --from=build /app/publish .
 USER appuser
+# Alpine não tem ICU por padrão: sem ele o SqlClient falha com "en-us is an invalid culture".
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "MiniBanking.Api.dll"]
