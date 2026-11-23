@@ -5,3 +5,6 @@ public class UnauthorizedException(string message) : Exception(message);
 
 /// <summary>Recurso já existe (ex.: e-mail ou CPF duplicado). A API responde 409.</summary>
 public class ConflictException(string message) : Exception(message);
+
+/// <summary>Recurso não encontrado (ex.: destinatário inexistente). A API responde 404.</summary>
+public class NotFoundException(string message) : Exception(message);

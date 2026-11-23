@@ -21,6 +21,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                     .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray())),
             UnauthorizedException ue => (StatusCodes.Status401Unauthorized, "Não autorizado", ue.Message, null),
             ConflictException ce => (StatusCodes.Status409Conflict, "Conflito", ce.Message, null),
+            NotFoundException nf => (StatusCodes.Status404NotFound, "Não encontrado", nf.Message, null),
             DomainException de => (StatusCodes.Status422UnprocessableEntity, "Regra de negócio", de.Message, null),
             _ => (StatusCodes.Status500InternalServerError, "Erro interno", "Ocorreu um erro inesperado.", null)
         };
