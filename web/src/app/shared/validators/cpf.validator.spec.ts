@@ -6,9 +6,12 @@ describe('isValidCpf', () => {
     expect(isValidCpf(cpf)).toBe(true);
   });
 
-  it.each(['123.456.789-00', '111.111.111-11', '1234', '', '999.999.999-9'])('rejeita %s', (cpf) => {
-    expect(isValidCpf(cpf)).toBe(false);
-  });
+  it.each(['123.456.789-00', '111.111.111-11', '1234', '', '999.999.999-9'])(
+    'rejeita %s',
+    (cpf) => {
+      expect(isValidCpf(cpf)).toBe(false);
+    },
+  );
 });
 
 describe('maskCpf', () => {

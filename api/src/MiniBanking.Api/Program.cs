@@ -90,7 +90,8 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapSwagger();
+app.UseSwagger();
+app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "Mini Internet Banking v1"));
 app.MapControllers();
 app.MapHealthChecks("/health");
 

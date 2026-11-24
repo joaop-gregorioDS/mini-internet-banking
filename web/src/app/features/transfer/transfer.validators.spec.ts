@@ -9,7 +9,9 @@ describe('insufficientBalanceValidator', () => {
   });
 
   it('rejeita valor maior que o saldo', () => {
-    const control = new FormControl<number | null>(100.01, [insufficientBalanceValidator(() => 100)]);
+    const control = new FormControl<number | null>(100.01, [
+      insufficientBalanceValidator(() => 100),
+    ]);
     expect(control.hasError('insufficientBalance')).toBe(true);
   });
 
@@ -20,7 +22,9 @@ describe('insufficientBalanceValidator', () => {
 
   it('lê o saldo no momento da validação (carregamento assíncrono)', () => {
     let balance: number | null = null;
-    const control = new FormControl<number | null>(50, [insufficientBalanceValidator(() => balance)]);
+    const control = new FormControl<number | null>(50, [
+      insufficientBalanceValidator(() => balance),
+    ]);
     expect(control.valid).toBe(true);
 
     balance = 20;

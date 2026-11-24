@@ -34,7 +34,12 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
 
         <label>
           CPF
-          <input formControlName="cpf" inputmode="numeric" placeholder="000.000.000-00" (input)="onCpfInput($event)" />
+          <input
+            formControlName="cpf"
+            inputmode="numeric"
+            placeholder="000.000.000-00"
+            (input)="onCpfInput($event)"
+          />
         </label>
         @if (form.controls.cpf.touched && form.controls.cpf.hasError('cpf')) {
           <small class="error">CPF inválido.</small>
@@ -71,14 +76,51 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
     </section>
   `,
   styles: `
-    .auth-card { max-width: 380px; margin: 3rem auto; padding: 2rem; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgb(0 0 0 / 8%); display: grid; gap: 1rem; }
-    form { display: grid; gap: .75rem; }
-    label { display: grid; gap: .35rem; font-size: .9rem; }
-    input { padding: .6rem .75rem; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; }
-    button { padding: .7rem; border: 0; border-radius: 8px; background: #0f766e; color: #fff; font: inherit; cursor: pointer; }
-    button:disabled { opacity: .6; cursor: default; }
-    .error { color: #b91c1c; }
-    .muted { color: #64748b; margin: 0; }
+    .auth-card {
+      max-width: 380px;
+      margin: 3rem auto;
+      padding: 2rem;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgb(0 0 0 / 8%);
+      display: grid;
+      gap: 1rem;
+    }
+    form {
+      display: grid;
+      gap: 0.75rem;
+    }
+    label {
+      display: grid;
+      gap: 0.35rem;
+      font-size: 0.9rem;
+    }
+    input {
+      padding: 0.6rem 0.75rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font: inherit;
+    }
+    button {
+      padding: 0.7rem;
+      border: 0;
+      border-radius: 8px;
+      background: #0f766e;
+      color: #fff;
+      font: inherit;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    .error {
+      color: #b91c1c;
+    }
+    .muted {
+      color: #64748b;
+      margin: 0;
+    }
   `,
 })
 export class RegisterComponent {

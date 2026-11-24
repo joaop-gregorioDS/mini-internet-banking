@@ -48,19 +48,42 @@ export function computeBars(items: CategoryTotal[], chartWidth: number): Bar[] {
         @for (bar of bars(); track bar.label) {
           <g [attr.transform]="'translate(0,' + bar.y + ')'">
             <text x="0" y="22" class="label">{{ bar.label }}</text>
-            <rect [attr.x]="labelWidth" y="8" height="18" rx="4" [attr.width]="bar.width" class="bar" />
-            <text [attr.x]="labelWidth + bar.width + 8" y="22" class="value">{{ formatted(bar.total) }}</text>
+            <rect
+              [attr.x]="labelWidth"
+              y="8"
+              height="18"
+              rx="4"
+              [attr.width]="bar.width"
+              class="bar"
+            />
+            <text [attr.x]="labelWidth + bar.width + 8" y="22" class="value">
+              {{ formatted(bar.total) }}
+            </text>
           </g>
         }
       </svg>
     }
   `,
   styles: `
-    svg { overflow: visible; }
-    .label { font-size: 13px; fill: #334155; }
-    .value { font-size: 13px; fill: #0f172a; font-weight: 600; }
-    .bar { fill: #0f766e; }
-    .empty { color: #64748b; margin: 0; }
+    svg {
+      overflow: visible;
+    }
+    .label {
+      font-size: 13px;
+      fill: #334155;
+    }
+    .value {
+      font-size: 13px;
+      fill: #0f172a;
+      font-weight: 600;
+    }
+    .bar {
+      fill: #0f766e;
+    }
+    .empty {
+      color: #64748b;
+      margin: 0;
+    }
   `,
 })
 export class CategoryBarsComponent {

@@ -71,10 +71,9 @@ describe('authInterceptor', () => {
     let result: unknown;
     http.get('/api/accounts/me').subscribe((r) => (result = r));
 
-    mock.expectOne('/api/accounts/me').flush(
-      { title: 'Não autorizado' },
-      { status: 401, statusText: 'Unauthorized' },
-    );
+    mock
+      .expectOne('/api/accounts/me')
+      .flush({ title: 'Não autorizado' }, { status: 401, statusText: 'Unauthorized' });
 
     const refresh = mock.expectOne('/api/auth/refresh');
     expect(refresh.request.body).toEqual({ refreshToken: 'refresh-1' });

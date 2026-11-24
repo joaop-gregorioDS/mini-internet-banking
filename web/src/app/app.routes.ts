@@ -11,7 +11,8 @@ export const routes: Routes = [
   {
     path: 'register',
     canActivate: [guestGuard],
-    loadComponent: () => import('./features/auth/register.component').then((m) => m.RegisterComponent),
+    loadComponent: () =>
+      import('./features/auth/register.component').then((m) => m.RegisterComponent),
   },
   {
     path: '',
@@ -20,15 +21,18 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
-        loadComponent: () => import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+        loadComponent: () =>
+          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
       {
         path: 'transfer',
-        loadComponent: () => import('./features/transfer/transfer.component').then((m) => m.TransferComponent),
+        loadComponent: () =>
+          import('./features/transfer/transfer.component').then((m) => m.TransferComponent),
       },
       {
         path: 'statement',
-        loadComponent: () => import('./features/statement/statement.component').then((m) => m.StatementComponent),
+        loadComponent: () =>
+          import('./features/statement/statement.component').then((m) => m.StatementComponent),
       },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],

@@ -26,7 +26,12 @@ import { insufficientBalanceValidator, positiveAmountValidator } from './transfe
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="card">
         <label>
           CPF do destinatário
-          <input formControlName="recipientCpf" inputmode="numeric" placeholder="000.000.000-00" (input)="onCpf($event)" />
+          <input
+            formControlName="recipientCpf"
+            inputmode="numeric"
+            placeholder="000.000.000-00"
+            (input)="onCpf($event)"
+          />
         </label>
         @if (form.controls.recipientCpf.touched && form.controls.recipientCpf.hasError('cpf')) {
           <small class="error">CPF inválido.</small>
@@ -45,7 +50,11 @@ import { insufficientBalanceValidator, positiveAmountValidator } from './transfe
 
         <label>
           Descrição
-          <input formControlName="description" maxlength="140" placeholder="Ex.: Almoço com a família" />
+          <input
+            formControlName="description"
+            maxlength="140"
+            placeholder="Ex.: Almoço com a família"
+          />
         </label>
 
         <label>
@@ -62,15 +71,58 @@ import { insufficientBalanceValidator, positiveAmountValidator } from './transfe
     </section>
   `,
   styles: `
-    .page { max-width: 520px; margin: 2rem auto; display: grid; gap: 1rem; }
-    h1 { margin: 0; font-size: 1.6rem; }
-    .muted { color: #64748b; margin: 0; }
-    .card { background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 12px rgb(0 0 0 / 6%); display: grid; gap: .9rem; }
-    label { display: grid; gap: .35rem; font-size: .9rem; }
-    input, select { padding: .6rem .75rem; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; background: #fff; }
-    button { padding: .75rem; border: 0; border-radius: 8px; background: #0f766e; color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
-    button:disabled { opacity: .6; cursor: default; }
-    .error { color: #b91c1c; }
+    .page {
+      max-width: 520px;
+      margin: 2rem auto;
+      display: grid;
+      gap: 1rem;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+    .muted {
+      color: #64748b;
+      margin: 0;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgb(0 0 0 / 6%);
+      display: grid;
+      gap: 0.9rem;
+    }
+    label {
+      display: grid;
+      gap: 0.35rem;
+      font-size: 0.9rem;
+    }
+    input,
+    select {
+      padding: 0.6rem 0.75rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font: inherit;
+      background: #fff;
+    }
+    button {
+      padding: 0.75rem;
+      border: 0;
+      border-radius: 8px;
+      background: #0f766e;
+      color: #fff;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    .error {
+      color: #b91c1c;
+    }
   `,
 })
 export class TransferComponent {
@@ -139,7 +191,12 @@ export class TransferComponent {
         next: (result) => {
           this.toasts.success(`Transferência enviada para ${result.recipientName}.`);
           this.balance.set(result.newBalance);
-          this.form.reset({ recipientCpf: '', amount: null, description: '', category: 'Transfer' });
+          this.form.reset({
+            recipientCpf: '',
+            amount: null,
+            description: '',
+            category: 'Transfer',
+          });
           this.router.navigateByUrl('/dashboard');
         },
         error: () => {

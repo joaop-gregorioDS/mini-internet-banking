@@ -1,11 +1,14 @@
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { FinanceApi } from '../../core/api/finance-api.service';
 import { DashboardSummary } from '../../core/api/finance.models';
 import { CategoryBarsComponent } from '../../shared/components/category-bars.component';
+
+type SummaryState =
+  { status: 'loading' } | { status: 'error' } | { status: 'ready'; data: DashboardSummary };
 
 @Component({
   selector: 'mb-dashboard',
@@ -13,11 +16,12 @@ import { CategoryBarsComponent } from '../../shared/components/category-bars.com
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="page">
+      @let st = state();
       <header class="head">
         <div>
           <h1>Olá, {{ auth.user()?.name }}</h1>
-          @if (summary(); as s) {
-            <p class="muted">Resumo de {{ monthLabel(s) }}</p>
+          @if (st.status === 'ready') {
+            <p class="muted">Resumo de {{ monthLabel(st.data) }}</p>
           }
         </div>
         <div class="actions">
@@ -26,25 +30,32 @@ import { CategoryBarsComponent } from '../../shared/components/category-bars.com
         </div>
       </header>
 
-      @if (summary(); as s) {
+      @if (st.status === 'ready') {
         <div class="cards">
           <article class="card">
             <span class="muted">Saldo atual</span>
-            <strong class="big">{{ s.balance | currency: 'BRL' }}</strong>
+            <strong class="big" data-testid="balance">{{
+              st.data.balance | currency: 'BRL'
+            }}</strong>
           </article>
           <article class="card">
             <span class="muted">Entradas no mês</span>
-            <strong class="big income">{{ s.monthIncome | currency: 'BRL' }}</strong>
+            <strong class="big income">{{ st.data.monthIncome | currency: 'BRL' }}</strong>
           </article>
           <article class="card">
             <span class="muted">Saídas no mês</span>
-            <strong class="big expense">{{ s.monthExpenses | currency: 'BRL' }}</strong>
+            <strong class="big expense">{{ st.data.monthExpenses | currency: 'BRL' }}</strong>
           </article>
         </div>
 
         <article class="card chart">
           <h2>Gastos por categoria</h2>
-          <mb-category-bars [items]="s.expensesByCategory" />
+          <mb-category-bars [items]="st.data.expensesByCategory" />
+        </article>
+      } @else if (st.status === 'error') {
+        <article class="card">
+          <p>Não foi possível carregar o resumo agora.</p>
+          <button type="button" class="btn" (click)="retry()">Tentar de novo</button>
         </article>
       } @else {
         <p class="muted">Carregando resumo…</p>
@@ -52,29 +63,109 @@ import { CategoryBarsComponent } from '../../shared/components/category-bars.com
     </section>
   `,
   styles: `
-    .page { max-width: 960px; margin: 0 auto; padding: 2rem 0; display: grid; gap: 1.25rem; }
-    .head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-    h1 { margin: 0; font-size: 1.6rem; }
-    h2 { margin: 0 0 1rem; font-size: 1.05rem; }
-    .muted { color: #64748b; margin: .25rem 0 0; }
-    .actions { display: flex; gap: .5rem; }
-    .btn { padding: .6rem 1rem; border-radius: 8px; background: #0f766e; color: #fff; text-decoration: none; font-weight: 600; }
-    .btn.secondary { background: #e2e8f0; color: #0f172a; }
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-    .card { background: #fff; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 12px rgb(0 0 0 / 6%); display: grid; gap: .35rem; }
-    .big { font-size: 1.5rem; color: #0f172a; }
-    .income { color: #15803d; }
-    .expense { color: #b91c1c; }
-    .chart { overflow-x: auto; }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 0;
+      display: grid;
+      gap: 1.25rem;
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      font-size: 1.05rem;
+    }
+    .muted {
+      color: #64748b;
+      margin: 0.25rem 0 0;
+    }
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn {
+      padding: 0.6rem 1rem;
+      border: 0;
+      border-radius: 8px;
+      background: #0f766e;
+      color: #fff;
+      text-decoration: none;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn.secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: 0 2px 12px rgb(0 0 0 / 6%);
+      display: grid;
+      gap: 0.35rem;
+    }
+    .big {
+      font-size: 1.5rem;
+      color: #0f172a;
+    }
+    .income {
+      color: #15803d;
+    }
+    .expense {
+      color: #b91c1c;
+    }
+    .chart {
+      overflow-x: auto;
+    }
   `,
 })
 export class DashboardComponent {
   protected readonly auth = inject(AuthService);
   private readonly api = inject(FinanceApi);
+  private readonly destroyRef = inject(DestroyRef);
 
-  readonly summary = toSignal(this.api.summary());
+  readonly state = signal<SummaryState>({ status: 'loading' });
+
+  constructor() {
+    this.load();
+  }
+
+  retry(): void {
+    this.load();
+  }
+
+  private load(): void {
+    this.state.set({ status: 'loading' });
+    this.api
+      .summary()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => this.state.set({ status: 'ready', data }),
+        error: () => this.state.set({ status: 'error' }),
+      });
+  }
 
   protected monthLabel(s: DashboardSummary): string {
-    return new Date(s.year, s.month - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    return new Date(s.year, s.month - 1, 1).toLocaleDateString('pt-BR', {
+      month: 'long',
+      year: 'numeric',
+    });
   }
 }
