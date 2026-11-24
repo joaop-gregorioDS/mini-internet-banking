@@ -62,6 +62,8 @@ import { AuthService } from '../core/auth/auth.service';
       cursor: pointer;
     }
     main {
+      /* flow-root impede que a margem das telas colapse para fora do main e abra uma faixa. */
+      display: flow-root;
       min-height: calc(100vh - 56px);
       padding: 0 1rem;
       background: var(--surface);
