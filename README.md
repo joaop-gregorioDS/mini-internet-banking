@@ -107,6 +107,8 @@ O front fica em http://localhost:4200 e encaminha `/api` para http://localhost:5
 
 ## Deploy em produção
 
+Versão publicada: https://mini-banking.vortexsoftware.tech (use o botão "Entrar como Visitante").
+
 O `docker-compose.prod.yml` e o guia passo a passo para a VPS (Nginx do host com HTTPS via Let's Encrypt, limites de memória, logs rotacionados) estão em [`deploy/README.md`](deploy/README.md).
 
 Em produção, o usuário demo é restaurado todo dia às 03h (horário de São Paulo): contas e transferências criadas por visitantes são apagadas.
@@ -142,7 +144,7 @@ Estado atual: **11 testes unitários e 27 de integração** no back-end; **46 te
 - [x] Fase 5: telas de painel, transferência e extrato
 - [x] Fase 6: qualidade (testes, formatação e documentação)
 - [x] Fase 7: CI no GitHub Actions (build e testes do back-end e do front, build das imagens)
-- [ ] Fase 8: deploy na VPS (Nginx com proxy reverso e SSL). Configuração pronta (compose de produção, Nginx, reset diário às 03h); falta publicar na VPS.
+- [x] Fase 8: deploy na VPS (Nginx com proxy reverso e SSL, reset diário às 03h). Ao vivo em https://mini-banking.vortexsoftware.tech
 
 ## Aviso
 
