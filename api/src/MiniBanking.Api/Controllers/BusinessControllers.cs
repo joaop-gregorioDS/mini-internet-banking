@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MiniBanking.Application.Accounts;
 using MiniBanking.Application.Common;
+using MiniBanking.Application.Dashboard;
 using MiniBanking.Application.Statement;
 using MiniBanking.Application.Transfers;
 using MiniBanking.Domain.Entities;
@@ -48,6 +49,20 @@ public class TransfersController(ITransferService transfers, IServiceProvider se
         var response = await transfers.TransferAsync(User.GetUserId(), request, ct);
         return Created($"/api/transactions/{response.TransactionId}", response);
     }
+}
+
+[ApiController]
+[Authorize]
+[Route("api/dashboard")]
+public class DashboardController(IDashboardService dashboard) : ControllerBase
+{
+    [HttpGet("summary")]
+    [ProducesResponseType(typeof(DashboardSummary), StatusCodes.Status200OK)]
+    public async Task<ActionResult<DashboardSummary>> Summary(
+        [FromQuery] int? year,
+        [FromQuery] int? month,
+        CancellationToken ct) =>
+        Ok(await dashboard.GetSummaryAsync(User.GetUserId(), year, month, ct));
 }
 
 [ApiController]
