@@ -22,6 +22,14 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
+      {
+        path: 'transfer',
+        loadComponent: () => import('./features/transfer/transfer.component').then((m) => m.TransferComponent),
+      },
+      {
+        path: 'statement',
+        loadComponent: () => import('./features/statement/statement.component').then((m) => m.StatementComponent),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },

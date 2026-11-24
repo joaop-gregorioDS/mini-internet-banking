@@ -10,6 +10,8 @@ import { AuthService } from '../core/auth/auth.service';
       <strong class="brand">Mini Internet Banking</strong>
       <nav>
         <a routerLink="/dashboard" routerLinkActive="active">Painel</a>
+        <a routerLink="/transfer" routerLinkActive="active">Transferir</a>
+        <a routerLink="/statement" routerLinkActive="active">Extrato</a>
       </nav>
       <div class="session">
         <span>{{ auth.user()?.name }}</span>
