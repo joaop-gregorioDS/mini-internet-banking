@@ -23,6 +23,8 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordService, PasswordService>();
         services.AddSingleton<ITokenService, TokenService>();
 
+        services.AddHostedService<MiniBanking.Infrastructure.Maintenance.DemoResetBackgroundService>();
+
         return services;
     }
 }

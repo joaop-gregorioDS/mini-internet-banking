@@ -8,7 +8,8 @@ RUN dotnet publish src/MiniBanking.Api/MiniBanking.Api.csproj -c Release -o /app
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
 WORKDIR /app
-RUN apk add --no-cache icu-libs \
+# tzdata: o reset diário usa o fuso America/Sao_Paulo (sem ele, TimeZoneInfo não encontra o fuso).
+RUN apk add --no-cache icu-libs tzdata \
     && adduser -D -u 10001 appuser
 COPY --from=build /app/publish .
 USER appuser

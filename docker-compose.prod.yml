@@ -1,0 +1,76 @@
+# Deploy na VPS. Uso: docker compose -f docker-compose.prod.yml up -d --build
+# Diferenças para o docker-compose.yml de desenvolvimento:
+#  - Só o front fica exposto, e só em 127.0.0.1 (o Nginx do host faz o HTTPS e encaminha para cá).
+#  - A API e o banco não publicam porta nenhuma: ficam acessíveis só dentro da rede do Compose.
+#  - Tags de imagem fixas (mini-banking-*:1.0.0), para saber exatamente o que está rodando.
+#  - restart: unless-stopped e healthchecks em todos os serviços.
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Defina MSSQL_SA_PASSWORD no .env}
+    volumes:
+      - dbdata:/var/opt/mssql
+    mem_limit: 2g
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  api:
+    image: mini-banking-api:1.0.0
+    build: ./api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__Default: "Server=db,1433;Database=MiniBanking;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;Connect Retry Count=5"
+      Jwt__Key: ${JWT_KEY:?Defina JWT_KEY no .env (32+ caracteres)}
+      DemoReset__Enabled: "true"
+      DemoReset__Hour: "3"
+      DemoReset__TimeZoneId: "America/Sao_Paulo"
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  web:
+    image: mini-banking-web:1.0.0
+    build: ./web
+    restart: unless-stopped
+    depends_on:
+      - api
+    mem_limit: 64m
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    ports:
+      - "127.0.0.1:4201:80"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  dbdata:
