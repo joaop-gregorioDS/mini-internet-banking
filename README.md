@@ -135,7 +135,7 @@ Estado atual: **11 testes unitários e 23 de integração** no back-end; **46 te
 - [x] Fase 4: shell do front, login, cadastro e guards
 - [x] Fase 5: telas de painel, transferência e extrato
 - [x] Fase 6: qualidade (testes, formatação e documentação)
-- [ ] Fase 7: CI no GitHub Actions
+- [x] Fase 7: CI no GitHub Actions (build e testes do back-end e do front, build das imagens)
 - [ ] Fase 8: deploy na VPS (Nginx com proxy reverso e SSL)
 
 ## Aviso
