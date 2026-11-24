@@ -110,17 +110,17 @@ const PAGE_SIZE = 10;
     }
     .btn {
       padding: 0.6rem 1rem;
-      border-radius: 8px;
-      background: #0f766e;
+      border-radius: 999px;
+      background: var(--brand-gradient);
       color: #fff;
       text-decoration: none;
       font-weight: 600;
     }
     .card {
       background: #fff;
-      border-radius: 12px;
+      border-radius: 24px;
       padding: 1.25rem;
-      box-shadow: 0 2px 12px rgb(0 0 0 / 6%);
+      box-shadow: 0 12px 32px rgb(41 37 42 / 10%);
     }
     .filters {
       display: flex;
@@ -131,12 +131,12 @@ const PAGE_SIZE = 10;
       display: grid;
       gap: 0.3rem;
       font-size: 0.85rem;
-      color: #334155;
+      color: var(--foreground);
     }
     input,
     select {
       padding: 0.5rem 0.65rem;
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--input-border);
       border-radius: 8px;
       font: inherit;
     }
@@ -150,7 +150,7 @@ const PAGE_SIZE = 10;
       justify-content: space-between;
       gap: 1rem;
       padding: 0.85rem 0;
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 1px solid var(--border);
     }
     .list li:last-child {
       border-bottom: 0;
@@ -160,7 +160,7 @@ const PAGE_SIZE = 10;
       gap: 0.2rem;
     }
     .muted {
-      color: #64748b;
+      color: var(--muted-foreground);
       font-size: 0.9rem;
     }
     .amount {
@@ -168,10 +168,10 @@ const PAGE_SIZE = 10;
       white-space: nowrap;
     }
     .credit {
-      color: #15803d;
+      color: var(--success);
     }
     .debit {
-      color: #b91c1c;
+      color: var(--error);
     }
     .pager {
       display: flex;
@@ -182,7 +182,7 @@ const PAGE_SIZE = 10;
     }
     .pager button {
       padding: 0.5rem 0.9rem;
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--input-border);
       border-radius: 8px;
       background: #fff;
       cursor: pointer;

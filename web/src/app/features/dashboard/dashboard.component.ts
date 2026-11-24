@@ -86,7 +86,7 @@ type SummaryState =
       font-size: 1.05rem;
     }
     .muted {
-      color: #64748b;
+      color: var(--muted-foreground);
       margin: 0.25rem 0 0;
     }
     .actions {
@@ -96,8 +96,8 @@ type SummaryState =
     .btn {
       padding: 0.6rem 1rem;
       border: 0;
-      border-radius: 8px;
-      background: #0f766e;
+      border-radius: 999px;
+      background: var(--brand-gradient);
       color: #fff;
       text-decoration: none;
       font: inherit;
@@ -105,8 +105,8 @@ type SummaryState =
       cursor: pointer;
     }
     .btn.secondary {
-      background: #e2e8f0;
-      color: #0f172a;
+      background: var(--border);
+      color: var(--foreground);
     }
     .cards {
       display: grid;
@@ -115,21 +115,21 @@ type SummaryState =
     }
     .card {
       background: #fff;
-      border-radius: 12px;
+      border-radius: 24px;
       padding: 1.25rem;
-      box-shadow: 0 2px 12px rgb(0 0 0 / 6%);
+      box-shadow: 0 12px 32px rgb(41 37 42 / 10%);
       display: grid;
       gap: 0.35rem;
     }
     .big {
       font-size: 1.5rem;
-      color: #0f172a;
+      color: var(--foreground);
     }
     .income {
-      color: #15803d;
+      color: var(--success);
     }
     .expense {
-      color: #b91c1c;
+      color: var(--error);
     }
     .chart {
       overflow-x: auto;

@@ -29,7 +29,7 @@ import { AuthService } from '../core/auth/auth.service';
       align-items: center;
       gap: 1.5rem;
       padding: 0.75rem 1.5rem;
-      background: #0f766e;
+      background: var(--brand-gradient);
       color: #fff;
     }
     .brand {
@@ -41,7 +41,7 @@ import { AuthService } from '../core/auth/auth.service';
       flex: 1;
     }
     nav a {
-      color: #ccfbf1;
+      color: var(--surface-raised);
       text-decoration: none;
     }
     nav a.active {
@@ -55,8 +55,8 @@ import { AuthService } from '../core/auth/auth.service';
     }
     .session button {
       padding: 0.4rem 0.8rem;
-      border: 1px solid #ccfbf1;
-      border-radius: 8px;
+      border: 1px solid var(--surface-raised);
+      border-radius: 999px;
       background: transparent;
       color: #fff;
       cursor: pointer;
@@ -64,7 +64,7 @@ import { AuthService } from '../core/auth/auth.service';
     main {
       min-height: calc(100vh - 56px);
       padding: 0 1rem;
-      background: #f1f5f9;
+      background: var(--surface);
     }
   `,
 })

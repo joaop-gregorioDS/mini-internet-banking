@@ -34,13 +34,13 @@ import { ToastService } from '../../core/notifications/toast.service';
       box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
     }
     .toast.error {
-      background: #b91c1c;
+      background: var(--error);
     }
     .toast.success {
-      background: #15803d;
+      background: var(--success);
     }
     .toast.info {
-      background: #334155;
+      background: var(--foreground);
     }
     .toast button {
       margin-left: auto;

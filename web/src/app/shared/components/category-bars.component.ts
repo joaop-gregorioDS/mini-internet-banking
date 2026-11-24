@@ -70,18 +70,18 @@ export function computeBars(items: CategoryTotal[], chartWidth: number): Bar[] {
     }
     .label {
       font-size: 13px;
-      fill: #334155;
+      fill: var(--foreground);
     }
     .value {
       font-size: 13px;
-      fill: #0f172a;
+      fill: var(--foreground);
       font-weight: 600;
     }
     .bar {
-      fill: #0f766e;
+      fill: var(--brand-primary);
     }
     .empty {
-      color: #64748b;
+      color: var(--muted-foreground);
       margin: 0;
     }
   `,

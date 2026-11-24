@@ -82,14 +82,14 @@ import { insufficientBalanceValidator, positiveAmountValidator } from './transfe
       font-size: 1.6rem;
     }
     .muted {
-      color: #64748b;
+      color: var(--muted-foreground);
       margin: 0;
     }
     .card {
       background: #fff;
-      border-radius: 12px;
+      border-radius: 24px;
       padding: 1.5rem;
-      box-shadow: 0 2px 12px rgb(0 0 0 / 6%);
+      box-shadow: 0 12px 32px rgb(41 37 42 / 10%);
       display: grid;
       gap: 0.9rem;
     }
@@ -101,7 +101,7 @@ import { insufficientBalanceValidator, positiveAmountValidator } from './transfe
     input,
     select {
       padding: 0.6rem 0.75rem;
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--input-border);
       border-radius: 8px;
       font: inherit;
       background: #fff;
@@ -109,8 +109,8 @@ import { insufficientBalanceValidator, positiveAmountValidator } from './transfe
     button {
       padding: 0.75rem;
       border: 0;
-      border-radius: 8px;
-      background: #0f766e;
+      border-radius: 999px;
+      background: var(--brand-gradient);
       color: #fff;
       font: inherit;
       font-weight: 600;
@@ -121,7 +121,7 @@ import { insufficientBalanceValidator, positiveAmountValidator } from './transfe
       cursor: default;
     }
     .error {
-      color: #b91c1c;
+      color: var(--error);
     }
   `,
 })
