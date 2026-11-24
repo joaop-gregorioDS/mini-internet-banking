@@ -1,9 +1,11 @@
 # Deploy na VPS
 
+Este guia assume uma VPS **compartilhada**: o Nginx do host já atende outros sites da Vortex (cada um em um arquivo de `/etc/nginx/sites-enabled/`) e vários containers já estão rodando. Por isso o deploy só **adiciona** um site novo e não mexe nos existentes.
+
 Arquitetura em produção:
 
 ```
-Internet ──443 (HTTPS)──► Nginx do host (SSL Let's Encrypt, rate limit em /api/auth)
+Internet ──443 (HTTPS)──► Nginx do host (já existente; SSL Let's Encrypt; rate limit em /api/auth)
                                │
                                ▼  127.0.0.1:4201
                           container web (nginx + SPA)
@@ -12,24 +14,17 @@ Internet ──443 (HTTPS)──► Nginx do host (SSL Let's Encrypt, rate limit
                           container api (.NET 8) ──► container db (SQL Server 2022)
 ```
 
-Só as portas 80 e 443 ficam abertas para a internet. A porta 4201 fica presa em `127.0.0.1`, e a API e o banco não publicam porta nenhuma.
+A porta 4201 fica presa em `127.0.0.1`, e a API e o banco não publicam porta nenhuma. A VPS já tem Nginx e firewall configurados: não é preciso instalá-los nem ativá-los de novo.
 
 > Dados fictícios. O reset diário às 03h (horário de São Paulo) apaga contas e transferências criadas pelos visitantes e restaura o saldo do usuário demo.
 
 ## Pré-requisitos
 
-- VPS Ubuntu com Docker Engine e o plugin Compose instalados.
-- Um domínio ou subdomínio apontando (registro `A`, e `AAAA` se a VPS tiver IPv6) para o IP da VPS.
-- Portas 80 e 443 liberadas no firewall.
+- **DNS:** registro `A` de `mini-banking.vortexsoftware.tech` apontando para o IP da VPS. Hoje o subdomínio não resolve; crie o registro antes da etapa 4.
+- Portas 80 e 443 já abertas (o Nginx atual já as usa).
+- Porta 4201 livre no host (confirmado: não está em uso).
 
-## 1. Preparar o servidor
-
-```bash
-sudo apt update && sudo apt install -y nginx certbot git
-sudo ufw allow 'Nginx Full' && sudo ufw allow OpenSSH && sudo ufw enable
-```
-
-## 2. Baixar o projeto e criar o `.env`
+## 1. Baixar o projeto e criar o `.env`
 
 ```bash
 sudo mkdir -p /opt/mini-internet-banking && sudo chown "$USER" /opt/mini-internet-banking
@@ -44,7 +39,7 @@ Para gerar uma `JWT_KEY` aleatória: `openssl rand -base64 48`.
 
 O `.env` nunca vai para o Git (está no `.gitignore`).
 
-## 3. Subir os containers
+## 2. Subir os containers
 
 ```bash
 cd /opt/mini-internet-banking/app
@@ -53,50 +48,39 @@ docker compose -f docker-compose.prod.yml ps       # db, api e web devem estar "
 curl -s http://127.0.0.1:4201/health               # via proxy do container web
 ```
 
-## 4. Certificado SSL e Nginx do host
+Os containers do projeto se chamam `mini-internet-banking-*`, então não colidem com os outros da VPS.
 
-Troque `SEU_DOMINIO` pelo domínio real nos comandos abaixo.
+## 3. Certificado SSL e site no Nginx do host
+
+O bloco HTTPS do arquivo `deploy/nginx/mini-banking.conf` usa certificados que ainda não existem. Por isso a primeira ativação usa só o bloco HTTP (linhas 1 a 22), que serve o desafio do Let's Encrypt.
 
 ```bash
-# Pasta do desafio do Let's Encrypt
 sudo mkdir -p /var/www/certbot
 
-# Config HTTP inicial, para o certbot conseguir validar o domínio
-sudo cp deploy/nginx/mini-banking.conf /etc/nginx/sites-available/mini-banking
-sudo sed -i 's/SEU_DOMINIO/seu.dominio.com/g' /etc/nginx/sites-available/mini-banking
-```
+# 1) Ativa só o bloco HTTP (sem o SSL) para o desafio funcionar
+sed -n '1,22p' deploy/nginx/mini-banking.conf | sudo tee /etc/nginx/sites-available/mini-banking.conf > /dev/null
+sudo ln -sf /etc/nginx/sites-available/mini-banking.conf /etc/nginx/sites-enabled/mini-banking.conf
+sudo nginx -t && sudo systemctl reload nginx
 
-Antes de emitir o certificado, o bloco `443` ainda não tem arquivos de certificado. Por isso:
+# 2) Emite o certificado
+sudo certbot certonly --webroot -w /var/www/certbot -d mini-banking.vortexsoftware.tech --agree-tos -m SEU-EMAIL
 
-1. Comente temporariamente o bloco `server { listen 443 ... }` no arquivo de `sites-available`.
-2. Ative o site e recarregue:
-
-```bash
-sudo ln -sf /etc/nginx/sites-available/mini-banking /etc/nginx/sites-enabled/mini-banking
-sudo rm -f /etc/nginx/sites-enabled/default
+# 3) Troca pelo arquivo completo (HTTP redireciona para HTTPS + bloco 443)
+sudo cp deploy/nginx/mini-banking.conf /etc/nginx/sites-available/mini-banking.conf
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-3. Emita o certificado:
+Não remova nem altere os outros arquivos de `sites-enabled/`. O `nginx -t` valida tudo antes do reload, então um erro não derruba os outros sites.
 
-```bash
-sudo certbot certonly --webroot -w /var/www/certbot -d seu.dominio.com --agree-tos -m seu-email@dominio.com
-```
+A renovação do certificado é automática (timer do `certbot`). Confira com `sudo certbot renew --dry-run`.
 
-4. Descomente o bloco `443`, teste e recarregue:
+## 4. Verificar
 
-```bash
-sudo nginx -t && sudo systemctl reload nginx
-```
-
-A renovação é automática (timer do `certbot`). Confira com `sudo certbot renew --dry-run`.
-
-## 5. Verificar
-
-- `https://seu.dominio.com` abre a tela de login.
-- Botão "Entrar como Visitante" funciona.
-- `https://seu.dominio.com/swagger` mostra a documentação da API.
-- `https://seu.dominio.com/health` responde `Healthy`.
+- `https://mini-banking.vortexsoftware.tech` abre a tela de login.
+- O botão "Entrar como Visitante" funciona.
+- `https://mini-banking.vortexsoftware.tech/swagger` mostra a documentação da API.
+- `https://mini-banking.vortexsoftware.tech/health` responde `Healthy`.
+- Os outros sites continuam respondendo normalmente.
 
 ## Atualizar a versão
 
@@ -110,8 +94,8 @@ Se a versão mudar, troque a tag `1.0.0` das imagens no `docker-compose.prod.yml
 
 ## Logs
 
-- **Containers:** `json-file` com `max-size: 10m` e `max-file: 3` em cada serviço (até 30 MB por serviço). Ver: `docker compose -f docker-compose.prod.yml logs -f api`.
-- **Nginx do host:** o pacote `logrotate` do Ubuntu já rotaciona `/var/log/nginx/*.log` todo dia.
+- **Containers:** `json-file` com `max-size: 10m` e `max-file: 3` em cada serviço. Ver: `docker compose -f docker-compose.prod.yml logs -f api`.
+- **Nginx do host:** o `logrotate` do Ubuntu já rotaciona `/var/log/nginx/*.log` (compartilhado com os outros sites).
 
 ## Limites de memória
 
@@ -120,6 +104,8 @@ Se a versão mudar, troque a tag `1.0.0` das imagens no `docker-compose.prod.yml
 | db (SQL Server) | 2 GB | Mínimo recomendado pelo SQL Server 2022 em Linux |
 | api | 512 MB | Suficiente para o .NET 8 com esta carga |
 | web | 64 MB | Nginx servindo arquivos estáticos |
+
+A VPS tem 15 GB de RAM, com cerca de 10 GB disponíveis hoje, então a folga cabe.
 
 ## Dados
 
